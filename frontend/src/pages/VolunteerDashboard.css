@@ -1,0 +1,464 @@
+.vol-page {
+  min-height: 100vh;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+}
+
+/* ---------- NAVBAR ---------- */
+.vol-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vol-logo {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.vol-logo .accent {
+  color: var(--accent-green);
+}
+
+.vol-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.vol-user-info {
+  font-size: 14px;
+}
+
+.vol-user-info .muted {
+  color: var(--text-secondary);
+}
+
+.btn-outline-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-outline-sm:hover {
+  border-color: var(--accent-green);
+}
+
+.btn-outline-sm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- PAGE CONTENT ---------- */
+.vol-content {
+  padding: 28px 32px 64px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.vol-content h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.vol-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 28px;
+}
+
+.vol-section-heading {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+
+/* ---------- MY NGO CARD ---------- */
+.ngo-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 32px;
+}
+
+.ngo-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.ngo-top-row h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.pill-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.pill-active {
+  background-color: rgba(29, 158, 117, 0.15);
+  color: var(--accent-green);
+}
+
+.pill-upcoming {
+  background-color: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+
+.ngo-date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.ngo-date-box {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.ngo-date-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0 0 6px;
+}
+
+.ngo-date-value {
+  font-size: 14.5px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ---------- WEEKLY PROGRESS ---------- */
+.week-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.week-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.week-card.current-week {
+  border-color: var(--accent-green);
+}
+
+.week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+.week-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.week-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.week-title-row .week-title {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.week-dates {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.week-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.week-hours {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-green);
+}
+
+.this-week-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: rgba(29, 158, 117, 0.15);
+  color: var(--accent-green);
+}
+
+.week-body {
+  padding: 0 20px 18px;
+  border-top: 1px solid var(--border-color);
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.task-row:last-of-type {
+  border-bottom: none;
+}
+
+.task-name {
+  font-size: 14px;
+}
+
+.task-hours-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background-color: rgba(29, 158, 117, 0.15);
+  color: var(--accent-green);
+  white-space: nowrap;
+}
+
+.week-no-tasks {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 14px 0;
+}
+
+/* add-task row (only current week) */
+.add-task-row {
+  display: grid;
+  grid-template-columns: 1fr 110px auto;
+  gap: 10px;
+  margin: 14px 0 12px;
+}
+
+.add-task-row input {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 13.5px;
+  padding: 10px 12px;
+  font-family: inherit;
+}
+
+.add-task-row input::placeholder {
+  color: var(--text-secondary);
+}
+
+.add-task-row input:focus {
+  outline: none;
+  border-color: var(--accent-green);
+}
+
+.add-task-btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-green);
+  background-color: var(--accent-green);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.add-task-btn:hover {
+  opacity: 0.9;
+}
+
+.add-task-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.week-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.week-footer-row .week-total {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.add-task-error {
+  font-size: 12.5px;
+  color: #ff8a8d;
+  margin: 0 0 10px;
+}
+
+/* ---------- TOTALS CARD ---------- */
+.totals-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 32px;
+}
+
+.totals-label {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin: 0 0 6px;
+}
+
+.totals-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.totals-right {
+  text-align: right;
+}
+
+/* ---------- UPCOMING EVENTS ---------- */
+.list-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 4px 20px;
+}
+
+.event-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+}
+
+.event-row:last-child {
+  border-bottom: none;
+}
+
+.event-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.event-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.marked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background-color: rgba(29, 158, 117, 0.15);
+  color: var(--accent-green);
+  white-space: nowrap;
+}
+
+/* ---------- EMPTY / LOADING / ERROR ---------- */
+.vol-empty,
+.vol-loading,
+.vol-fetch-error {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 24px 0;
+}
+
+.vol-fetch-error {
+  color: #ff8a8d;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 640px) {
+  .vol-navbar {
+    padding: 14px 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .vol-content {
+    padding: 20px 18px 48px;
+  }
+
+  .ngo-date-row {
+    grid-template-columns: 1fr;
+  }
+
+  .add-task-row {
+    grid-template-columns: 1fr;
+  }
+
+  .week-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .totals-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .totals-right {
+    text-align: left;
+  }
+
+  .event-row {
+    flex-wrap: wrap;
+  }
+}
