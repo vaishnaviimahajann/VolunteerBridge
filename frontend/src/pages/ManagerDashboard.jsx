@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { LogOut, Plus, X, BarChart3 } from "lucide-react";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
@@ -37,21 +38,9 @@ function EventBadge({ isToday }) {
   );
 }
 
-function HistoryStatusBadge({ status }) {
-  const isAttended = status === "attended";
-  return (
-    <span
-      className={`status-badge ${
-        isAttended ? "status-attended" : "status-missed"
-      }`}
-    >
-      {isAttended ? "Attended" : "Missed"}
-    </span>
-  );
-}
-
 function ManagerDashboard() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
@@ -65,11 +54,6 @@ function ManagerDashboard() {
   const [inviteError, setInviteError] = useState("");
   const [inviteSuccess, setInviteSuccess] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
-
-  const [progressVolunteer, setProgressVolunteer] = useState(null);
-  const [progressData, setProgressData] = useState(null);
-  const [progressLoading, setProgressLoading] = useState(false);
-  const [progressError, setProgressError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -141,30 +125,10 @@ function ManagerDashboard() {
     }
   };
 
-  const handleViewProgress = async (volunteer) => {
-    setProgressVolunteer(volunteer);
-    setProgressData(null);
-    setProgressError("");
-    setProgressLoading(true);
-
-    try {
-      const res = await api.get(
-        `/api/manager/volunteer-progress/${volunteer.id}`
-      );
-      setProgressData(res.data);
-    } catch (err) {
-      const message =
-        err.response?.data?.message || "Couldn't load progress data.";
-      setProgressError(message);
-    } finally {
-      setProgressLoading(false);
-    }
-  };
-
-  const closeProgressModal = () => {
-    setProgressVolunteer(null);
-    setProgressData(null);
-    setProgressError("");
+  // Navigate to the volunteer's read-only dashboard page instead of
+  // opening a modal.
+  const handleOpenVolunteer = (volunteer) => {
+    navigate(`/manager/volunteer/${volunteer.id}`);
   };
 
   return (
@@ -243,10 +207,10 @@ function ManagerDashboard() {
                       </div>
                       <button
                         className="btn-outline-sm"
-                        onClick={() => handleViewProgress(volunteer)}
+                        onClick={() => handleOpenVolunteer(volunteer)}
                       >
                         <BarChart3 size={14} />
-                        View Progress
+                        Open dashboard
                       </button>
                     </div>
                   );
@@ -344,87 +308,6 @@ function ManagerDashboard() {
             <p className="modal-hint">
               Volunteer will get a secure link · Expires in 24 hours
             </p>
-          </div>
-        </div>
-      )}
-
-      {/* PROGRESS MODAL */}
-      {progressVolunteer && (
-        <div
-          className="modal-overlay"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeProgressModal();
-          }}
-        >
-          <div className="modal-card modal-wide">
-            <div className="modal-header">
-              <h3>Progress</h3>
-              <button
-                className="modal-close-btn"
-                onClick={closeProgressModal}
-                aria-label="Close"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <p className="progress-name">{progressVolunteer.name}</p>
-
-            {progressLoading ? (
-              <div className="progress-loading">Loading progress...</div>
-            ) : progressError ? (
-              <div className="modal-error">{progressError}</div>
-            ) : (
-              <>
-                <div className="stat-grid">
-                  <div className="stat-box">
-                    <p className="stat-value">
-                      {progressData?.totalHours ?? 0}
-                    </p>
-                    <p className="stat-label">Total hours</p>
-                  </div>
-                  <div className="stat-box">
-                    <p className="stat-value">
-                      {progressData?.eventsAttended ?? 0}
-                    </p>
-                    <p className="stat-label">Events attended</p>
-                  </div>
-                  <div className="stat-box">
-                    <p className="stat-value">
-                      {progressData?.thisMonthHours ?? 0}
-                    </p>
-                    <p className="stat-label">This month</p>
-                  </div>
-                </div>
-
-                <h4 className="progress-history-title">
-                  Recent event history
-                </h4>
-                {progressData?.history?.length ? (
-                  <table className="history-table">
-                    <tbody>
-                      {progressData.history.map((item) => (
-                        <tr key={item.id || item.eventName}>
-                          <td>
-                            <p className="history-event-name">
-                              {item.eventName}
-                            </p>
-                            <p className="history-event-date">
-                              {formatDate(item.date)}
-                            </p>
-                          </td>
-                          <td className="history-status">
-                            <HistoryStatusBadge status={item.status} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="mgr-empty">No event history yet.</div>
-                )}
-              </>
-            )}
           </div>
         </div>
       )}
