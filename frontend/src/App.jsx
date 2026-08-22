@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage";
 import InviteSignupPage from "./pages/InviteSignupPage";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
+import ManagerVolunteerView from "./pages/ManagerVolunteerView";
 import VolunteerDashboard from "./pages/VolunteerDashboard";
 
 // If there's no token in localStorage, bounce to /login.
@@ -45,6 +46,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ManagerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manager/volunteer/:volunteerId"
+            element={
+              <ProtectedRoute>
+                <ManagerVolunteerView />
               </ProtectedRoute>
             }
           />
