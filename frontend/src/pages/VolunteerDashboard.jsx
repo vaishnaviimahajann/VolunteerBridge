@@ -20,31 +20,20 @@ function WeekCard({ week, isOpen, onToggle, onAddTask }) {
   const [taskHours, setTaskHours] = useState("");
   const [addError, setAddError] = useState("");
   const [adding, setAdding] = useState(false);
-
   const isCurrent = !!week.isCurrentWeek;
 
   const handleAdd = async () => {
     setAddError("");
-
-    if (!taskName.trim()) {
-      setAddError("Enter a task description");
-      return;
-    }
+    if (!taskName.trim()) { setAddError("Enter a task description"); return; }
     const hours = parseFloat(taskHours);
-    if (!taskHours || Number.isNaN(hours) || hours <= 0) {
-      setAddError("Enter valid hours");
-      return;
-    }
-
+    if (!taskHours || Number.isNaN(hours) || hours <= 0) { setAddError("Enter valid hours"); return; }
     setAdding(true);
     try {
       await onAddTask(week.id, taskName.trim(), hours);
       setTaskName("");
       setTaskHours("");
     } catch (err) {
-      setAddError(
-        err.response?.data?.message || "Couldn't add task. Try again."
-      );
+      setAddError(err.response?.data?.message || "Couldn't add task. Try again.");
     } finally {
       setAdding(false);
     }
@@ -59,7 +48,7 @@ function WeekCard({ week, isOpen, onToggle, onAddTask }) {
             {isCurrent && <span className="this-week-badge">This week</span>}
           </div>
           <span className="week-dates">
-            {formatDate(week.startDate)} – {formatDate(week.endDate)}
+            {formatDate(week.startDate)} — {formatDate(week.endDate)}
           </span>
         </div>
         <div className="week-header-right">
@@ -74,9 +63,7 @@ function WeekCard({ week, isOpen, onToggle, onAddTask }) {
             week.tasks.map((task) => (
               <div className="task-row" key={task.id || task.taskName}>
                 <span className="task-name">{task.taskName}</span>
-                <span className="task-hours-badge">
-                  {task.hoursSpent} hrs
-                </span>
+                <span className="task-hours-badge">{task.hoursSpent} hrs</span>
               </div>
             ))
           ) : (
@@ -117,9 +104,7 @@ function WeekCard({ week, isOpen, onToggle, onAddTask }) {
               {week.tasks?.length || 0} task
               {week.tasks?.length === 1 ? "" : "s"} this week
             </span>
-            <span className="week-total">
-              Total: {week.totalHours ?? 0} hrs
-            </span>
+            <span className="week-total">Total: {week.totalHours ?? 0} hrs</span>
           </div>
         </div>
       )}
@@ -129,7 +114,6 @@ function WeekCard({ week, isOpen, onToggle, onAddTask }) {
 
 function VolunteerDashboard() {
   const { user, logout } = useAuth();
-
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
   const [ngo, setNgo] = useState(null);
@@ -137,8 +121,7 @@ function VolunteerDashboard() {
   const [events, setEvents] = useState([]);
   const [collegeName, setCollegeName] = useState(user?.collegeName || "");
   const [managerName, setManagerName] = useState("");
-
-  const [openWeekId, setOpenWeekId] = useState(null);
+  const [openWeekId, setOpenWeekId] = useState("current");
   const [markingEventId, setMarkingEventId] = useState(null);
 
   const loadDashboard = async () => {
@@ -147,40 +130,25 @@ function VolunteerDashboard() {
     try {
       const res = await api.get("/api/volunteer/dashboard");
       const data = res.data || {};
-
       setNgo(data.ngo || null);
       setWeeklyProgress(data.weeklyProgress || []);
       setEvents(data.events || []);
       if (data.collegeName) setCollegeName(data.collegeName);
       if (data.managerName) setManagerName(data.managerName);
-
-      const currentWeek = (data.weeklyProgress || []).find(
-        (w) => w.isCurrentWeek
-      );
-      setOpenWeekId(currentWeek?.id ?? null);
+      const currentWeek = (data.weeklyProgress || []).find((w) => w.isCurrentWeek);
+      setOpenWeekId(currentWeek?.id ?? "current");
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        "Couldn't load dashboard data. Please try again.";
+      const message = err.response?.data?.message || "Couldn't load dashboard data. Please try again.";
       setFetchError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadDashboard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => { loadDashboard(); }, []);
 
-  const totalHours = weeklyProgress.reduce(
-    (sum, w) => sum + (w.totalHours || 0),
-    0
-  );
-  const tasksCompleted = weeklyProgress.reduce(
-    (sum, w) => sum + (w.tasks?.length || 0),
-    0
-  );
+  const totalHours = weeklyProgress.reduce((sum, w) => sum + (w.totalHours || 0), 0);
+  const tasksCompleted = weeklyProgress.reduce((sum, w) => sum + (w.tasks?.length || 0), 0);
 
   const handleToggleWeek = (weekId) => {
     setOpenWeekId((prev) => (prev === weekId ? null : weekId));
@@ -188,7 +156,6 @@ function VolunteerDashboard() {
 
   const handleAddTask = async (weekId, taskName, hoursSpent) => {
     await api.post("/api/volunteer/add-task", { taskName, hoursSpent });
-    // Refresh weekly progress + totals from the server after adding
     await loadDashboard();
     setOpenWeekId(weekId);
   };
@@ -201,11 +168,20 @@ function VolunteerDashboard() {
         prev.map((ev) => (ev.id === eventId ? { ...ev, attended: true } : ev))
       );
     } catch (err) {
-      // Keeping this simple for now — could surface a toast/error banner
-      // here if the app grows a notification system later.
     } finally {
       setMarkingEventId(null);
     }
+  };
+
+  // Default current week when no progress exists
+  const defaultCurrentWeek = {
+    id: "current",
+    weekNumber: 1,
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+    tasks: [],
+    totalHours: 0,
+    isCurrentWeek: true,
   };
 
   return (
@@ -217,77 +193,68 @@ function VolunteerDashboard() {
         </div>
         <div className="vol-nav-right">
           <span className="vol-user-info">
-            {user?.name}
-            <span className="muted"> · Volunteer</span>
+            {user?.name} · <span className="vol-role">Volunteer</span>
           </span>
-          <button className="btn-outline-sm" onClick={logout}>
-            <LogOut size={15} />
+          <button className="vol-logout-btn" onClick={logout}>
+            <LogOut size={16} />
             Logout
           </button>
         </div>
       </nav>
 
       <div className="vol-content">
-        <h1>My Dashboard</h1>
-        <p className="vol-subtitle">
-          {collegeName}
-          {managerName && ` · Manager: ${managerName}`}
-        </p>
+        {/* HEADING */}
+        <div className="vol-heading">
+          <h1>My Dashboard</h1>
+          <p className="vol-subtitle">
+            {collegeName || "Your College"}
+            {managerName ? ` · Manager: ${managerName}` : ""}
+          </p>
+        </div>
 
-        {loading ? (
-          <div className="vol-loading">Loading dashboard...</div>
-        ) : fetchError ? (
-          <div className="vol-fetch-error">{fetchError}</div>
-        ) : (
+        {loading && <p className="vol-loading">Loading...</p>}
+        {fetchError && <p className="vol-error">{fetchError}</p>}
+
+        {!loading && (
           <>
             {/* MY NGO */}
-            <h2 className="vol-section-heading">My NGO</h2>
-            {ngo ? (
-              <div className="ngo-card">
-                <div className="ngo-top-row">
-                  <h3>{ngo.name}</h3>
-                  <span
-                    className={`pill-badge ${
-                      ngo.status === "active"
-                        ? "pill-active"
-                        : "pill-upcoming"
-                    }`}
-                  >
-                    {ngo.status === "active" ? "Active" : "Upcoming"}
-                  </span>
-                </div>
-                <div className="ngo-date-row">
-                  <div className="ngo-date-box">
-                    <p className="ngo-date-label">Starting date</p>
-                    <p className="ngo-date-value">
-                      {formatDate(ngo.startDate)}
-                    </p>
+            <section className="vol-section">
+              <h2 className="vol-section-title">My NGO</h2>
+              {ngo ? (
+                <div className="ngo-card">
+                  <div className="ngo-card-top">
+                    <span className="ngo-name">{ngo.name}</span>
+                    <span className="ngo-active-badge">Active</span>
                   </div>
-                  <div className="ngo-date-box">
-                    <p className="ngo-date-label">Ending date</p>
-                    <p className="ngo-date-value">
-                      {formatDate(ngo.endDate)}
-                    </p>
+                  <div className="ngo-dates-row">
+                    <div className="ngo-date-box">
+                      <span className="ngo-date-label">Starting date</span>
+                      <span className="ngo-date-value">{formatDate(ngo.startDate)}</span>
+                    </div>
+                    <div className="ngo-date-box">
+                      <span className="ngo-date-label">Ending date</span>
+                      <span className="ngo-date-value">{formatDate(ngo.endDate)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="ngo-card">
-                <div className="vol-empty">
-                  You haven't been assigned to an NGO yet.
-                </div>
-              </div>
-            )}
+              ) : (
+                <div className="ngo-empty">You haven't been assigned to an NGO yet.</div>
+              )}
+            </section>
 
             {/* WEEKLY PROGRESS */}
-            <h2 className="vol-section-heading">My Weekly Progress</h2>
-            {weeklyProgress.length === 0 ? (
-              <div className="vol-empty" style={{ marginBottom: "24px" }}>
-                No weekly progress logged yet.
-              </div>
-            ) : (
-              <div className="week-list">
-                {weeklyProgress.map((week) => (
+            <section className="vol-section">
+              <h2 className="vol-section-title">My Weekly Progress</h2>
+
+              {weeklyProgress.length === 0 ? (
+                <WeekCard
+                  week={defaultCurrentWeek}
+                  isOpen={openWeekId === "current"}
+                  onToggle={() => handleToggleWeek("current")}
+                  onAddTask={handleAddTask}
+                />
+              ) : (
+                weeklyProgress.map((week) => (
                   <WeekCard
                     key={week.id}
                     week={week}
@@ -295,64 +262,60 @@ function VolunteerDashboard() {
                     onToggle={() => handleToggleWeek(week.id)}
                     onAddTask={handleAddTask}
                   />
-                ))}
-              </div>
-            )}
+                ))
+              )}
 
-            {/* TOTALS */}
-            <div className="totals-card">
-              <div>
-                <p className="totals-label">Total hours so far</p>
-                <p className="totals-value">{totalHours} hrs</p>
+              {/* TOTALS */}
+              <div className="vol-totals-card">
+                <div>
+                  <p className="totals-label">Total hours so far</p>
+                  <p className="totals-value">{totalHours} hrs</p>
+                </div>
+                <div className="totals-right">
+                  <p className="totals-label">Tasks completed</p>
+                  <p className="totals-value">{tasksCompleted} tasks</p>
+                </div>
               </div>
-              <div className="totals-right">
-                <p className="totals-label">Tasks completed</p>
-                <p className="totals-value">{tasksCompleted} tasks</p>
-              </div>
-            </div>
+            </section>
 
             {/* UPCOMING EVENTS */}
-            <h2 className="vol-section-heading">Upcoming Events</h2>
-            {events.length === 0 ? (
-              <div className="list-card">
-                <div className="vol-empty">No upcoming events yet.</div>
-              </div>
-            ) : (
-              <div className="list-card">
-                {events.map((event) => (
-                  <div className="event-row" key={event.id}>
-                    <div>
-                      <p className="event-name">{event.name}</p>
-                      <p className="event-meta">
-                        {event.isToday
-                          ? `Today${event.time ? ` · ${event.time}` : ""}`
-                          : formatDate(event.date)}
-                      </p>
+            <section className="vol-section">
+              <h2 className="vol-section-title">Upcoming Events</h2>
+              {events.length === 0 ? (
+                <div className="events-empty">No upcoming events yet.</div>
+              ) : (
+                <div className="events-card">
+                  {events.map((ev) => (
+                    <div className="event-row" key={ev.id}>
+                      <div className="event-info">
+                        <span className="event-name">{ev.name}</span>
+                        <span className="event-date">
+                          {formatDate(ev.date)}
+                          {ev.isToday ? " · 10:00 AM" : ""}
+                        </span>
+                      </div>
+                      {ev.isToday ? (
+                        ev.attended ? (
+                          <span className="event-marked-badge">
+                            <Check size={14} /> Marked
+                          </span>
+                        ) : (
+                          <button
+                            className="mark-attended-btn"
+                            onClick={() => handleMarkAttended(ev.id)}
+                            disabled={markingEventId === ev.id}
+                          >
+                            {markingEventId === ev.id ? "Marking..." : "Mark attended"}
+                          </button>
+                        )
+                      ) : (
+                        <span className="event-upcoming-badge">Upcoming</span>
+                      )}
                     </div>
-                    {event.attended ? (
-                      <span className="marked-badge">
-                        <Check size={14} />
-                        Marked
-                      </span>
-                    ) : event.isToday ? (
-                      <button
-                        className="btn-outline-sm"
-                        onClick={() => handleMarkAttended(event.id)}
-                        disabled={markingEventId === event.id}
-                      >
-                        {markingEventId === event.id
-                          ? "Marking..."
-                          : "Mark attended"}
-                      </button>
-                    ) : (
-                      <span className="pill-badge pill-upcoming">
-                        Upcoming
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </section>
           </>
         )}
       </div>
