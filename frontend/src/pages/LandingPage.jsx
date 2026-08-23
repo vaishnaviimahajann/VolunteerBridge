@@ -3,10 +3,10 @@ import {
   ArrowDown,
   ArrowRight,
   MoreHorizontal,
-  Check,
+  Clock,
   LayoutDashboard,
   Mail,
-  FileText,
+  CalendarCheck,
 } from "lucide-react";
 import "./LandingPage.css";
 
@@ -75,11 +75,11 @@ const roles = [
 
 const features = [
   {
-    icon: Check,
+    icon: Clock,
     iconClass: "icon-green",
-    title: "One-click attendance",
+    title: "Weekly progress tracking",
     description:
-      "No more WhatsApp updates — volunteers mark themselves present instantly",
+      "Volunteers log hours and tasks every week, visible to managers instantly",
   },
   {
     icon: LayoutDashboard,
@@ -96,11 +96,11 @@ const features = [
       "Managers and volunteers join securely through email invite links",
   },
   {
-    icon: FileText,
+    icon: CalendarCheck,
     iconClass: "icon-amber",
-    title: "Auto reports",
+    title: "Plan events in seconds",
     description:
-      "Monthly impact reports generated automatically — no manual work",
+      "Coordinators plan events, and everyone gets notified automatically",
   },
 ];
 
