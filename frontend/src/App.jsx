@@ -6,6 +6,8 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import InviteSignupPage from "./pages/InviteSignupPage";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
+import CoordinatorManagerView from "./pages/CoordinatorManagerView";
+import CoordinatorVolunteerView from "./pages/CoordinatorVolunteerView";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import ManagerVolunteerView from "./pages/ManagerVolunteerView";
 import VolunteerDashboard from "./pages/VolunteerDashboard";
@@ -41,6 +43,23 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/coordinator/manager/:managerId"
+            element={
+              <ProtectedRoute>
+                <CoordinatorManagerView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/coordinator/volunteer/:volunteerId"
+            element={
+              <ProtectedRoute>
+                <CoordinatorVolunteerView />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/manager/dashboard"
             element={
