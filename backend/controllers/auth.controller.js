@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const College = require('../models/College');
+const NGO = require('../models/Ngo');
 const InviteToken = require('../models/InviteToken');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -105,10 +106,34 @@ const login = async (req, res) => {
   }
 };
 
+// Returns just the role for a given invite token, so the signup page
+// knows whether to show the NGO Name field (volunteers only) before
+// the person has even created their account.
+const getInviteInfo = async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) {
+      return res.status(400).json({ message: 'Token is required' });
+    }
+
+    const invite = await InviteToken.findOne({ token, used: false });
+    if (!invite) {
+      return res.status(404).json({ message: 'Invalid or expired invite link' });
+    }
+    if (invite.expiresAt < new Date()) {
+      return res.status(400).json({ message: 'Invite link has expired' });
+    }
+
+    res.status(200).json({ role: invite.role, email: invite.email });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Invite Signup
 const inviteSignup = async (req, res) => {
   try {
-    const { token, name, password } = req.body;
+    const { token, name, password, ngoName } = req.body;
 
     // Find invite token
     const invite = await InviteToken.findOne({ token, used: false });
@@ -121,8 +146,36 @@ const inviteSignup = async (req, res) => {
       return res.status(400).json({ message: 'Invite link has expired' });
     }
 
+    // Volunteers must provide their NGO name at signup
+    if (invite.role === 'volunteer' && !ngoName?.trim()) {
+      return res.status(400).json({ message: 'Please enter your NGO name' });
+    }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    // If this is a volunteer, find or create the NGO they named so it
+    // shows up on their "My NGO" card right away.
+    let ngoId = null;
+    if (invite.role === 'volunteer') {
+      const trimmedNgoName = ngoName.trim();
+
+      let ngo = await NGO.findOne({
+        name: trimmedNgoName,
+        collegeId: invite.collegeId,
+        managerId: invite.managerId || null,
+      });
+
+      if (!ngo) {
+        ngo = await NGO.create({
+          name: trimmedNgoName,
+          collegeId: invite.collegeId,
+          managerId: invite.managerId || null,
+        });
+      }
+
+      ngoId = ngo._id;
+    }
 
     // Create user
     const user = await User.create({
@@ -131,7 +184,8 @@ const inviteSignup = async (req, res) => {
       password: hashedPassword,
       role: invite.role,
       collegeId: invite.collegeId,
-      managerId: invite.managerId || null
+      managerId: invite.managerId || null,
+      ngoId,
     });
 
     // Mark token as used
@@ -157,4 +211,4 @@ const inviteSignup = async (req, res) => {
   }
 };
 
-module.exports = { register, login, inviteSignup };
+module.exports = { register, login, inviteSignup, getInviteInfo };
