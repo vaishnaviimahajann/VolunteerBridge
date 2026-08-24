@@ -34,4 +34,5 @@ const inviteTokenSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('InviteToken', inviteTokenSchema);
+
+module.exports = mongoose.models.InviteToken || mongoose.model('InviteToken', inviteTokenSchema);
