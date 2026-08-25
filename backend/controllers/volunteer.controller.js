@@ -6,10 +6,8 @@ const WeeklyProgress = require('../models/Weeklyprogress');
 const getDashboard = async (req, res) => {
   try {
     const { userId, collegeId } = req.user;
-    const volunteer = await User.findById(userId).select('-password').populate('ngoId');
+    const volunteer = await User.findById(userId).select('-password').populate('ngoId').populate('collegeId');
 
-    // Only fetch events that are today or in the future — past events
-    // shouldn't show up in "Upcoming Events"
     const now = new Date();
     const todayStart = new Date(now);
     todayStart.setHours(0, 0, 0, 0);
@@ -30,11 +28,30 @@ const getDashboard = async (req, res) => {
       return evObj;
     });
 
-    const weeklyProgress = await WeeklyProgress.find({ volunteerId: userId });
+    const weeklyProgressDocs = await WeeklyProgress.find({ volunteerId: userId }).sort({ weekNumber: 1 });
+
+    const dayOfWeek = now.getDay();
+    const currentWeekStart = new Date(now);
+    currentWeekStart.setDate(now.getDate() - dayOfWeek);
+    currentWeekStart.setHours(0, 0, 0, 0);
+    const currentWeekEnd = new Date(currentWeekStart);
+    currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
+    currentWeekEnd.setHours(23, 59, 59, 999);
+
+    const weeklyProgress = weeklyProgressDocs.map((week) => {
+      const weekObj = week.toObject();
+      weekObj.id = week._id;
+      weekObj.isCurrentWeek =
+        week.startDate.getTime() === currentWeekStart.getTime() &&
+        week.endDate.getTime() === currentWeekEnd.getTime();
+      return weekObj;
+    });
+
     res.status(200).json({
       volunteer,
-      ngo: volunteer.ngoId || null,              // 👈 NAYI LINE — ye missing thi
-      collegeName: volunteer.collegeId?.name || '', // 👈 bonus fix — college naam bhi ab sahi aayega
+      ngo: volunteer.ngoId || null,
+      ngoStatus: volunteer.ngoStatus || 'active',
+      collegeName: volunteer.collegeId?.name || '',
       events,
       weeklyProgress,
     });
@@ -62,6 +79,16 @@ const addTask = async (req, res) => {
   try {
     const { taskName, hoursSpent } = req.body;
     const { userId } = req.user;
+
+    // Block task logging once the volunteer has marked their NGO
+    // internship as completed.
+    const volunteer = await User.findById(userId).select('ngoStatus');
+    if (volunteer?.ngoStatus === 'completed') {
+      return res.status(400).json({
+        message: 'Your NGO internship is marked complete. You can no longer log tasks.',
+      });
+    }
+
     const now = new Date();
     const dayOfWeek = now.getDay();
     const startDate = new Date(now);
@@ -95,4 +122,24 @@ const getWeeklyProgress = async (req, res) => {
   }
 };
 
-module.exports = { getDashboard, markAttendance, addTask, getWeeklyProgress };
+// Marks the volunteer's NGO internship as completed. After this, addTask
+// will reject further task logging for this volunteer.
+const completeNgo = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.ngoStatus = 'completed';
+    await user.save();
+
+    res.status(200).json({
+      message: 'NGO internship marked as completed',
+      ngoStatus: user.ngoStatus,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getDashboard, markAttendance, addTask, getWeeklyProgress, completeNgo };
