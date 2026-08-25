@@ -62,14 +62,24 @@ jobs:
             vaishmahajan2006/volunteerbridge-frontend:${{ github.sha }}
 
       # ---------- Trigger Render to redeploy with the new images ----------
-      # These steps only run once RENDER_DEPLOY_HOOK_BACKEND and
-      # RENDER_DEPLOY_HOOK_FRONTEND secrets are added (after Render
-      # services are created). Safe to leave in even before that —
-      # they'll just fail harmlessly if the secret is empty.
+      # Safe to run even before RENDER_DEPLOY_HOOK_* secrets are added —
+      # the script just prints a message and skips instead of failing.
       - name: Trigger Render backend deploy
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND != '' }}
-        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}"
+        env:
+          HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_BACKEND }}
+        run: |
+          if [ -n "$HOOK_URL" ]; then
+            curl -X POST "$HOOK_URL"
+          else
+            echo "RENDER_DEPLOY_HOOK_BACKEND not set yet — skipping deploy trigger."
+          fi
 
       - name: Trigger Render frontend deploy
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND != '' }}
-        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}"
+        env:
+          HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_FRONTEND }}
+        run: |
+          if [ -n "$HOOK_URL" ]; then
+            curl -X POST "$HOOK_URL"
+          else
+            echo "RENDER_DEPLOY_HOOK_FRONTEND not set yet — skipping deploy trigger."
+          fi
