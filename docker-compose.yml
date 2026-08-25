@@ -1,0 +1,26 @@
+# Runs the whole app locally with one command: docker compose up --build
+#
+# MongoDB is NOT included here since the project uses MongoDB Atlas
+# (cloud) — the backend connects to it via MONGO_URI in backend/.env,
+# same as it does when running without Docker.
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: volunteerbridge-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: volunteerbridge-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

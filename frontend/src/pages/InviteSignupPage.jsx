@@ -11,12 +11,6 @@ const roleRedirects = {
   volunteer: "/volunteer/dashboard",
 };
 
-const roleLabels = {
-  coordinator: "Coordinator",
-  manager: "Student Manager",
-  volunteer: "Volunteer",
-};
-
 function InviteSignupPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -24,11 +18,12 @@ function InviteSignupPage() {
 
   const token = searchParams.get("token");
 
-  const [inviteInfo, setInviteInfo] = useState(null);
-  const [inviteInfoError, setInviteInfoError] = useState("");
+  const [inviteRole, setInviteRole] = useState(null);
   const [loadingInvite, setLoadingInvite] = useState(true);
+  const [inviteLoadError, setInviteLoadError] = useState("");
 
   const [name, setName] = useState("");
+  const [ngoName, setNgoName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
@@ -44,17 +39,16 @@ function InviteSignupPage() {
 
     async function loadInviteInfo() {
       try {
-        // Fetches the email/role tied to this invite token so we can
-        // show the role as a read-only field before signup.
         const res = await api.get("/api/auth/invite-info", {
           params: { token },
         });
-        if (!cancelled) setInviteInfo(res.data);
+        if (!cancelled) setInviteRole(res.data?.role || null);
       } catch (err) {
         if (!cancelled) {
-          // Not fatal — the role will still be set correctly server-side
-          // when invite-signup runs, we just can't preview it here.
-          setInviteInfoError("Couldn't preview invite details");
+          const message =
+            err.response?.data?.message ||
+            "This invite link is invalid or has expired.";
+          setInviteLoadError(message);
         }
       } finally {
         if (!cancelled) setLoadingInvite(false);
@@ -67,12 +61,18 @@ function InviteSignupPage() {
     };
   }, [token]);
 
+  const isVolunteerInvite = inviteRole === "volunteer";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
 
     if (!name.trim()) {
       setFormError("Please enter your name");
+      return;
+    }
+    if (isVolunteerInvite && !ngoName.trim()) {
+      setFormError("Please enter your NGO name");
       return;
     }
     if (!password || password.length < 8) {
@@ -86,6 +86,7 @@ function InviteSignupPage() {
         token,
         name: name.trim(),
         password,
+        ...(isVolunteerInvite ? { ngoName: ngoName.trim() } : {}),
       });
 
       // Backend returns { message, token, user: { ..., role } }
@@ -122,22 +123,21 @@ function InviteSignupPage() {
                 coordinator or manager to send you a new one.
               </p>
             </>
+          ) : inviteLoadError ? (
+            <>
+              <h2>Invalid invite link</h2>
+              <p className="auth-card-subtext">{inviteLoadError}</p>
+            </>
+          ) : loadingInvite ? (
+            <p className="auth-card-subtext" style={{ textAlign: "center" }}>
+              Loading invite...
+            </p>
           ) : (
             <>
               <h2>Welcome!</h2>
               <p className="auth-card-subtext">
                 Just set your password — your role is already assigned
               </p>
-
-              {inviteInfoError && (
-                <p
-                  className="helper-text"
-                  style={{ textAlign: "center", marginBottom: "16px" }}
-                >
-                  {inviteInfoError} — you can still continue, your role will
-                  be set correctly when you submit.
-                </p>
-              )}
 
               {formError && (
                 <div className="form-error-banner">{formError}</div>
@@ -157,22 +157,19 @@ function InviteSignupPage() {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="role">Role</label>
-                  <input
-                    id="role"
-                    name="role"
-                    type="text"
-                    readOnly
-                    value={
-                      loadingInvite
-                        ? "Loading..."
-                        : roleLabels[inviteInfo?.role] ||
-                          "Set by your invite link"
-                    }
-                    style={{ color: "var(--text-secondary)", cursor: "default" }}
-                  />
-                </div>
+                {isVolunteerInvite && (
+                  <div className="form-group">
+                    <label htmlFor="ngoName">NGO name</label>
+                    <input
+                      id="ngoName"
+                      name="ngoName"
+                      type="text"
+                      placeholder="eg. Rotary Club Nashik"
+                      value={ngoName}
+                      onChange={(e) => setNgoName(e.target.value)}
+                    />
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label htmlFor="password">Password</label>

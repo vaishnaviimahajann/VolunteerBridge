@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { LogOut, Plus, Users, X, Bell, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LogOut, Plus, Users, X, Bell, ArrowRight, Trash2 } from "lucide-react";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import "./CoordinatorDashboard.css";
@@ -30,18 +31,9 @@ function formatDate(dateStr) {
   });
 }
 
-function StatusBadge({ status }) {
-  const map = {
-    present: { label: "Present", className: "status-present" },
-    absent: { label: "Absent", className: "status-absent" },
-    "not-marked": { label: "Not marked", className: "status-not-marked" },
-  };
-  const info = map[status] || map["not-marked"];
-  return <span className={`status-badge ${info.className}`}>{info.label}</span>;
-}
-
 function CoordinatorDashboard() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
@@ -50,8 +42,7 @@ function CoordinatorDashboard() {
   const [collegeName, setCollegeName] = useState(
     user?.collegeName || user?.college?.name || ""
   );
-
-  const [activeManagerId, setActiveManagerId] = useState(null);
+  const [deletingEventId, setDeletingEventId] = useState(null);
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteForm, setInviteForm] = useState({ name: "", email: "" });
@@ -94,10 +85,8 @@ function CoordinatorDashboard() {
     };
   }, []);
 
-  const activeManager = managers.find((m) => m.id === activeManagerId);
-
   const handleOpenManagerDashboard = (managerId) => {
-    setActiveManagerId((prev) => (prev === managerId ? null : managerId));
+    navigate(`/coordinator/manager/${managerId}`);
   };
 
   const handleInviteChange = (e) => {
@@ -179,6 +168,22 @@ function CoordinatorDashboard() {
     }
   };
 
+  const handleDeleteEvent = async (eventId) => {
+    if (!window.confirm("Delete this event? This can't be undone.")) return;
+
+    setDeletingEventId(eventId);
+    try {
+      await api.delete(`/api/coordinator/event/${eventId}`);
+      setUpcomingEvents((prev) => prev.filter((ev) => ev.id !== eventId));
+    } catch (err) {
+      const message =
+        err.response?.data?.message || "Couldn't delete event. Please try again.";
+      alert(message);
+    } finally {
+      setDeletingEventId(null);
+    }
+  };
+
   return (
     <div className="dash-page">
       {/* NAVBAR */}
@@ -228,7 +233,6 @@ function CoordinatorDashboard() {
               <div className="managers-grid">
                 {managers.map((manager, index) => {
                   const colors = AVATAR_COLORS[index % AVATAR_COLORS.length];
-                  const isActive = activeManagerId === manager.id;
                   return (
                     <div className="manager-card" key={manager.id}>
                       <div
@@ -247,9 +251,7 @@ function CoordinatorDashboard() {
                         {manager.volunteerCount ?? 0} volunteers
                       </p>
                       <button
-                        className={`open-dashboard-btn ${
-                          isActive ? "active" : ""
-                        }`}
+                        className="open-dashboard-btn"
                         onClick={() => handleOpenManagerDashboard(manager.id)}
                       >
                         Open dashboard
@@ -258,45 +260,6 @@ function CoordinatorDashboard() {
                     </div>
                   );
                 })}
-              </div>
-            )}
-
-            {/* VOLUNTEER PANEL */}
-            {activeManager && (
-              <div className="volunteer-panel">
-                <div className="volunteer-panel-header">
-                  <h3>{activeManager.name}'s volunteers</h3>
-                  <span className="panel-subtext">
-                    {activeManager.ngoName}
-                  </span>
-                </div>
-
-                {activeManager.volunteers?.length ? (
-                  <table className="volunteer-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Total hours</th>
-                        <th>Today's status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeManager.volunteers.map((v) => (
-                        <tr key={v.id}>
-                          <td>{v.name}</td>
-                          <td>{v.totalHours ?? 0} hrs</td>
-                          <td>
-                            <StatusBadge status={v.status} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="empty-state">
-                    No volunteers under this manager yet.
-                  </div>
-                )}
               </div>
             )}
 
@@ -363,9 +326,21 @@ function CoordinatorDashboard() {
                       <p className="event-name">{event.name}</p>
                       <p className="event-date">{formatDate(event.date)}</p>
                     </div>
-                    {event.notified !== false && (
-                      <span className="notified-badge">All notified</span>
-                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      {event.notified !== false && (
+                        <span className="notified-badge">All notified</span>
+                      )}
+                      <button
+                        className="btn-outline"
+                        onClick={() => handleDeleteEvent(event.id)}
+                        disabled={deletingEventId === event.id}
+                        aria-label="Delete event"
+                        title="Delete event"
+                      >
+                        <Trash2 size={14} />
+                        {deletingEventId === event.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
                   </div>
                 ))
               )}

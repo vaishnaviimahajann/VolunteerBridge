@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { LogOut, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { LogOut, ChevronDown, ChevronUp, Check, Lock, Building2 } from "lucide-react";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import "./VolunteerDashboard.css";
@@ -15,7 +15,7 @@ function formatDate(dateStr) {
   });
 }
 
-function WeekCard({ week, isOpen, onToggle, onAddTask }) {
+function WeekCard({ week, isOpen, onToggle, onAddTask, ngoCompleted }) {
   const [taskName, setTaskName] = useState("");
   const [taskHours, setTaskHours] = useState("");
   const [addError, setAddError] = useState("");
@@ -70,7 +70,7 @@ function WeekCard({ week, isOpen, onToggle, onAddTask }) {
             <p className="week-no-tasks">No tasks logged for this week.</p>
           )}
 
-          {isCurrent && (
+          {isCurrent && !ngoCompleted && (
             <>
               {addError && <p className="add-task-error">{addError}</p>}
               <div className="add-task-row">
@@ -99,6 +99,13 @@ function WeekCard({ week, isOpen, onToggle, onAddTask }) {
             </>
           )}
 
+          {isCurrent && ngoCompleted && (
+            <div className="task-locked-row">
+              <Lock size={14} />
+              <span>Task logging is locked — your NGO internship is marked complete.</span>
+            </div>
+          )}
+
           <div className="week-footer-row">
             <span>
               {week.tasks?.length || 0} task
@@ -117,12 +124,14 @@ function VolunteerDashboard() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
   const [ngo, setNgo] = useState(null);
+  const [ngoStatus, setNgoStatus] = useState("active");
   const [weeklyProgress, setWeeklyProgress] = useState([]);
   const [events, setEvents] = useState([]);
   const [collegeName, setCollegeName] = useState(user?.collegeName || "");
-  const [managerName, setManagerName] = useState("");
   const [openWeekId, setOpenWeekId] = useState("current");
   const [markingEventId, setMarkingEventId] = useState(null);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completing, setCompleting] = useState(false);
 
   const loadDashboard = async () => {
     setLoading(true);
@@ -131,10 +140,10 @@ function VolunteerDashboard() {
       const res = await api.get("/api/volunteer/dashboard");
       const data = res.data || {};
       setNgo(data.ngo || null);
+      setNgoStatus(data.ngoStatus || "active");
       setWeeklyProgress(data.weeklyProgress || []);
       setEvents(data.events || []);
       if (data.collegeName) setCollegeName(data.collegeName);
-      if (data.managerName) setManagerName(data.managerName);
       const currentWeek = (data.weeklyProgress || []).find((w) => w.isCurrentWeek);
       setOpenWeekId(currentWeek?.id ?? "current");
     } catch (err) {
@@ -147,6 +156,7 @@ function VolunteerDashboard() {
 
   useEffect(() => { loadDashboard(); }, []);
 
+  const thisWeekHours = weeklyProgress.find((w) => w.isCurrentWeek)?.totalHours ?? 0;
   const totalHours = weeklyProgress.reduce((sum, w) => sum + (w.totalHours || 0), 0);
   const tasksCompleted = weeklyProgress.reduce((sum, w) => sum + (w.tasks?.length || 0), 0);
 
@@ -173,7 +183,18 @@ function VolunteerDashboard() {
     }
   };
 
-  // Default current week when no progress exists
+  const handleConfirmComplete = async () => {
+    setCompleting(true);
+    try {
+      await api.post("/api/volunteer/complete-ngo");
+      setNgoStatus("completed");
+      setShowCompleteModal(false);
+    } catch (err) {
+    } finally {
+      setCompleting(false);
+    }
+  };
+
   const defaultCurrentWeek = {
     id: "current",
     weekNumber: 1,
@@ -205,11 +226,8 @@ function VolunteerDashboard() {
       <div className="vol-content">
         {/* HEADING */}
         <div className="vol-heading">
-          <h1>My Dashboard</h1>
-          <p className="vol-subtitle">
-            {collegeName || "Your College"}
-            {managerName ? ` · Manager: ${managerName}` : ""}
-          </p>
+          <h1>My dashboard</h1>
+          <p className="vol-subtitle">{collegeName || "Your College"}</p>
         </div>
 
         {loading && <p className="vol-loading">Loading...</p>}
@@ -217,24 +235,46 @@ function VolunteerDashboard() {
 
         {!loading && (
           <>
+            {/* STATS ROW */}
+            <div className="stats-grid">
+              <div className="stat-card">
+                <p className="stat-label">This week</p>
+                <p className="stat-value accent">{thisWeekHours} hrs</p>
+              </div>
+              <div className="stat-card">
+                <p className="stat-label">Total hours</p>
+                <p className="stat-value">{totalHours} hrs</p>
+              </div>
+              <div className="stat-card">
+                <p className="stat-label">Tasks done</p>
+                <p className="stat-value">{tasksCompleted}</p>
+              </div>
+            </div>
+
             {/* MY NGO */}
             <section className="vol-section">
-              <h2 className="vol-section-title">My NGO</h2>
               {ngo ? (
                 <div className="ngo-card">
                   <div className="ngo-card-top">
+                    <div className="ngo-icon">
+                      <Building2 size={18} />
+                    </div>
                     <span className="ngo-name">{ngo.name}</span>
-                    <span className="ngo-active-badge">Active</span>
                   </div>
-                  <div className="ngo-dates-row">
-                    <div className="ngo-date-box">
-                      <span className="ngo-date-label">Starting date</span>
-                      <span className="ngo-date-value">{formatDate(ngo.startDate)}</span>
-                    </div>
-                    <div className="ngo-date-box">
-                      <span className="ngo-date-label">Ending date</span>
-                      <span className="ngo-date-value">{formatDate(ngo.endDate)}</span>
-                    </div>
+                  <div className="ngo-status-row">
+                    <button
+                      className={`ngo-status-btn ${ngoStatus === "active" ? "active" : ""}`}
+                      disabled
+                    >
+                      Active
+                    </button>
+                    <button
+                      className={`ngo-status-btn ${ngoStatus === "completed" ? "completed" : ""}`}
+                      onClick={() => setShowCompleteModal(true)}
+                      disabled={ngoStatus === "completed"}
+                    >
+                      {ngoStatus === "completed" ? "Completed" : "Mark as completed"}
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -244,7 +284,7 @@ function VolunteerDashboard() {
 
             {/* WEEKLY PROGRESS */}
             <section className="vol-section">
-              <h2 className="vol-section-title">My Weekly Progress</h2>
+              <h2 className="vol-section-title">Weekly progress</h2>
 
               {weeklyProgress.length === 0 ? (
                 <WeekCard
@@ -252,6 +292,7 @@ function VolunteerDashboard() {
                   isOpen={openWeekId === "current"}
                   onToggle={() => handleToggleWeek("current")}
                   onAddTask={handleAddTask}
+                  ngoCompleted={ngoStatus === "completed"}
                 />
               ) : (
                 weeklyProgress.map((week) => (
@@ -261,26 +302,15 @@ function VolunteerDashboard() {
                     isOpen={openWeekId === week.id}
                     onToggle={() => handleToggleWeek(week.id)}
                     onAddTask={handleAddTask}
+                    ngoCompleted={ngoStatus === "completed"}
                   />
                 ))
               )}
-
-              {/* TOTALS */}
-              <div className="vol-totals-card">
-                <div>
-                  <p className="totals-label">Total hours so far</p>
-                  <p className="totals-value">{totalHours} hrs</p>
-                </div>
-                <div className="totals-right">
-                  <p className="totals-label">Tasks completed</p>
-                  <p className="totals-value">{tasksCompleted} tasks</p>
-                </div>
-              </div>
             </section>
 
             {/* UPCOMING EVENTS */}
             <section className="vol-section">
-              <h2 className="vol-section-title">Upcoming Events</h2>
+              <h2 className="vol-section-title">Upcoming events</h2>
               {events.length === 0 ? (
                 <div className="events-empty">No upcoming events yet.</div>
               ) : (
@@ -319,6 +349,40 @@ function VolunteerDashboard() {
           </>
         )}
       </div>
+
+      {/* CONFIRM COMPLETE MODAL */}
+      {showCompleteModal && (
+        <div
+          className="confirm-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !completing) setShowCompleteModal(false);
+          }}
+        >
+          <div className="confirm-card">
+            <div className="confirm-icon">
+              <Check size={20} />
+            </div>
+            <p className="confirm-title">Is your NGO internship completed?</p>
+            <p className="confirm-sub">You won't be able to log tasks after this.</p>
+            <div className="confirm-actions">
+              <button
+                className="confirm-cancel-btn"
+                onClick={() => setShowCompleteModal(false)}
+                disabled={completing}
+              >
+                Cancel
+              </button>
+              <button
+                className="confirm-ok-btn"
+                onClick={handleConfirmComplete}
+                disabled={completing}
+              >
+                {completing ? "..." : "OK"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

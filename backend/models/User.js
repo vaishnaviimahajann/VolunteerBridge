@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
   ngoId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'NGO'
+  },
+  ngoStatus: {
+    type: String,
+    enum: ['active', 'completed'],
+    default: 'active'
   }
 }, { timestamps: true });
 
