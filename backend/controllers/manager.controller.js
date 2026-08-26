@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const Event = require('../models/Event');
 const WeeklyProgress = require('../models/Weeklyprogress');
-const InviteToken = require('../models/invitetoken');
+const InviteToken = require('../models/InviteToken');
 const generateToken = require('../utils/Generatetoken');
 const sendEmail = require('../utils/Sendemail');
 
