@@ -1,9 +1,10 @@
 import axios from "axios";
 
-// Backend runs on port 5000, all routes are prefixed with /api
-// (see server.js -> app.use('/api/auth', ...) etc.)
+// In production (Render), VITE_API_URL is baked in at build time and
+// points to the deployed backend. Locally, it falls back to localhost
+// so `npm run dev` still works exactly as before.
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
 });
 
 // Attach token from localStorage to every outgoing request
