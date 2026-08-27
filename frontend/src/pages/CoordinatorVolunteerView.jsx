@@ -117,6 +117,7 @@ function CoordinatorVolunteerView() {
 
   const [volunteer, setVolunteer] = useState(null);
   const [ngo, setNgo] = useState(null);
+  const [ngoStatus, setNgoStatus] = useState("active"); //added
   const [collegeName, setCollegeName] = useState("");
   const [weeklyProgress, setWeeklyProgress] = useState([]);
   const [openWeekId, setOpenWeekId] = useState(null);
@@ -140,6 +141,7 @@ function CoordinatorVolunteerView() {
 
         setVolunteer(data.volunteer || null);
         setNgo(data.ngo || null);
+        setNgoStatus(data.ngoStatus || "active");//aded
         setCollegeName(data.collegeName || "");
         setWeeklyProgress(data.weeklyProgress || []);
 
@@ -301,9 +303,13 @@ function CoordinatorVolunteerView() {
 
                   </div>
 
-                  <span className="ngo-active-badge">
-                    Active
-                  </span>
+                  <span
+                  className={`ngo-active-badge ${
+                  ngoStatus === "completed" ? "completed" : ""
+                   }`}
+                   >
+                   {ngoStatus === "completed" ? "Completed" : "Active"}
+                   </span>
 
                 </div>
               ) : (

@@ -77,6 +77,7 @@ function ManagerVolunteerView() {
   const [fetchError, setFetchError] = useState("");
   const [volunteer, setVolunteer] = useState(null);
   const [ngo, setNgo] = useState(null);
+  const [ngoStatus, setNgoStatus] = useState("active");//adedded
   const [collegeName, setCollegeName] = useState("");
   const [weeklyProgress, setWeeklyProgress] = useState([]);
   const [openWeekId, setOpenWeekId] = useState(null);
@@ -93,6 +94,7 @@ function ManagerVolunteerView() {
         const data = res.data || {};
         setVolunteer(data.volunteer || null);
         setNgo(data.ngo || null);
+        setNgoStatus(data.ngoStatus || "active");//sjcjksnc
         setCollegeName(data.collegeName || "");
         setWeeklyProgress(data.weeklyProgress || []);
         const currentWeek = (data.weeklyProgress || []).find((w) => w.isCurrentWeek);
@@ -176,7 +178,13 @@ function ManagerVolunteerView() {
                     </div>
                     <span className="ngo-name">{ngo.name}</span>
                   </div>
-                  <span className="ngo-active-badge">Active</span>
+                  <span
+                  className={`ngo-active-badge ${
+                   ngoStatus === "completed" ? "completed" : ""
+                  }`}
+                  >
+                  {ngoStatus === "completed" ? "Completed" : "Active"}
+                  </span>
                 </div>
               ) : (
                 <div className="ngo-empty">This volunteer hasn't been assigned to an NGO yet.</div>
