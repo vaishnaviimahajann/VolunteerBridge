@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Check, Building2 } from "lucide-react";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import "./VolunteerDashboard.css";
@@ -44,7 +44,10 @@ function ReadOnlyWeekCard({ week, isOpen, onToggle }) {
           {week.tasks?.length ? (
             week.tasks.map((task) => (
               <div className="task-row" key={task.id || task.taskName}>
-                <span className="task-name">{task.taskName}</span>
+                <span className="task-name">
+                  <Check size={14} className="task-check-icon" />
+                  {task.taskName}
+                </span>
                 <span className="task-hours-badge">{task.hoursSpent} hrs</span>
               </div>
             ))
@@ -109,6 +112,7 @@ function ManagerVolunteerView() {
     };
   }, [volunteerId]);
 
+  const thisWeekHours = weeklyProgress.find((w) => w.isCurrentWeek)?.totalHours ?? 0;
   const totalHours = weeklyProgress.reduce((sum, w) => sum + (w.totalHours || 0), 0);
   const tasksCompleted = weeklyProgress.reduce((sum, w) => sum + (w.tasks?.length || 0), 0);
 
@@ -125,9 +129,9 @@ function ManagerVolunteerView() {
         </div>
         <div className="vol-nav-right">
           <span className="vol-user-info">
-            {user?.name} · <span className="vol-role">Manager</span>
+            {user?.name} · <span className="vol-role">{user?.role === "coordinator" ? "Coordinator" : "Manager"}</span>
           </span>
-          <button className="vol-logout-btn" onClick={() => navigate("/manager/dashboard")}>
+          <button className="vol-logout-btn" onClick={() => navigate(-1)}>
             <ArrowLeft size={16} />
             Back
           </button>
@@ -143,31 +147,36 @@ function ManagerVolunteerView() {
             {/* HEADING */}
             <div className="vol-heading">
               <h1>{volunteer?.name || "Volunteer"}'s Dashboard</h1>
-              <p className="vol-subtitle">
-                {collegeName || "College"}
-                {" · Viewing as Manager"}
-              </p>
+              <p className="vol-subtitle">{collegeName || "College"}</p>
             </div>
 
-            {/* MY NGO */}
+            {/* STATS ROW — same as volunteer's own dashboard */}
+            <div className="stats-grid">
+              <div className="stat-card">
+                <p className="stat-label">This week</p>
+                <p className="stat-value accent">{thisWeekHours} hrs</p>
+              </div>
+              <div className="stat-card">
+                <p className="stat-label">Total hours</p>
+                <p className="stat-value">{totalHours} hrs</p>
+              </div>
+              <div className="stat-card">
+                <p className="stat-label">Tasks done</p>
+                <p className="stat-value">{tasksCompleted}</p>
+              </div>
+            </div>
+
+            {/* NGO — just name + static Active badge, no dates */}
             <section className="vol-section">
-              <h2 className="vol-section-title">NGO</h2>
               {ngo ? (
                 <div className="ngo-card">
                   <div className="ngo-card-top">
+                    <div className="ngo-icon">
+                      <Building2 size={18} />
+                    </div>
                     <span className="ngo-name">{ngo.name}</span>
-                    <span className="ngo-active-badge">Active</span>
                   </div>
-                  <div className="ngo-dates-row">
-                    <div className="ngo-date-box">
-                      <span className="ngo-date-label">Starting date</span>
-                      <span className="ngo-date-value">{formatDate(ngo.startDate)}</span>
-                    </div>
-                    <div className="ngo-date-box">
-                      <span className="ngo-date-label">Ending date</span>
-                      <span className="ngo-date-value">{formatDate(ngo.endDate)}</span>
-                    </div>
-                  </div>
+                  <span className="ngo-active-badge">Active</span>
                 </div>
               ) : (
                 <div className="ngo-empty">This volunteer hasn't been assigned to an NGO yet.</div>
@@ -176,7 +185,7 @@ function ManagerVolunteerView() {
 
             {/* WEEKLY PROGRESS */}
             <section className="vol-section">
-              <h2 className="vol-section-title">Weekly Progress</h2>
+              <h2 className="vol-section-title">Weekly progress</h2>
 
               {weeklyProgress.length === 0 ? (
                 <div className="ngo-empty">No progress logged yet.</div>
@@ -190,18 +199,6 @@ function ManagerVolunteerView() {
                   />
                 ))
               )}
-
-              {/* TOTALS */}
-              <div className="vol-totals-card">
-                <div>
-                  <p className="totals-label">Total hours so far</p>
-                  <p className="totals-value">{totalHours} hrs</p>
-                </div>
-                <div className="totals-right">
-                  <p className="totals-label">Tasks completed</p>
-                  <p className="totals-value">{tasksCompleted} tasks</p>
-                </div>
-              </div>
             </section>
           </>
         )}
