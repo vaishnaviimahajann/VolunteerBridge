@@ -13,7 +13,7 @@ const sendEmail = async (to, role, inviteLink) => {
     from: process.env.EMAIL_USER,
     to: to,
     subject: `You have been invited to VolunteerBridge as a ${role}`,
-    html: 
+    html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1D9E75;">Welcome to VolunteerBridge!</h2>
         <p>You have been invited to join VolunteerBridge as a <strong>${role}</strong>.</p>
@@ -27,7 +27,7 @@ const sendEmail = async (to, role, inviteLink) => {
           This link will expire in 24 hours.
         </p>
       </div>
-    
+    `
   };
 
   await transporter.sendMail(mailOptions);
