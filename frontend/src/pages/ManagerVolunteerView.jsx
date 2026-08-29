@@ -77,7 +77,7 @@ function ManagerVolunteerView() {
   const [fetchError, setFetchError] = useState("");
   const [volunteer, setVolunteer] = useState(null);
   const [ngo, setNgo] = useState(null);
-  const [ngoStatus, setNgoStatus] = useState("active");//adedded
+  const [ngoStatus, setNgoStatus] = useState("active");
   const [collegeName, setCollegeName] = useState("");
   const [weeklyProgress, setWeeklyProgress] = useState([]);
   const [openWeekId, setOpenWeekId] = useState(null);
@@ -94,7 +94,7 @@ function ManagerVolunteerView() {
         const data = res.data || {};
         setVolunteer(data.volunteer || null);
         setNgo(data.ngo || null);
-        setNgoStatus(data.ngoStatus || "active");//sjcjksnc
+        setNgoStatus(data.ngoStatus || "active");
         setCollegeName(data.collegeName || "");
         setWeeklyProgress(data.weeklyProgress || []);
         const currentWeek = (data.weeklyProgress || []).find((w) => w.isCurrentWeek);
@@ -168,7 +168,7 @@ function ManagerVolunteerView() {
               </div>
             </div>
 
-            {/* NGO — just name + static Active badge, no dates */}
+            {/* NGO — name + status badge on the same line */}
             <section className="vol-section">
               {ngo ? (
                 <div className="ngo-card">
@@ -177,14 +177,15 @@ function ManagerVolunteerView() {
                       <Building2 size={18} />
                     </div>
                     <span className="ngo-name">{ngo.name}</span>
+                    <span
+                      className={`ngo-active-badge ${
+                        ngoStatus === "completed" ? "completed" : ""
+                      }`}
+                      style={{ marginLeft: "auto" }}
+                    >
+                      {ngoStatus === "completed" ? "Completed" : "Active"}
+                    </span>
                   </div>
-                  <span
-                  className={`ngo-active-badge ${
-                   ngoStatus === "completed" ? "completed" : ""
-                  }`}
-                  >
-                  {ngoStatus === "completed" ? "Completed" : "Active"}
-                  </span>
                 </div>
               ) : (
                 <div className="ngo-empty">This volunteer hasn't been assigned to an NGO yet.</div>
