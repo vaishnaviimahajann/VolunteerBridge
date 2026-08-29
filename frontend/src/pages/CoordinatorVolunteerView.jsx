@@ -291,27 +291,28 @@ function CoordinatorVolunteerView() {
               {ngo ? (
                 <div className="ngo-card">
 
-                  <div className="ngo-card-top">
+              <div className="ngo-card-top">
 
-                    <div className="ngo-icon">
-                      <Building2 size={18} />
-                    </div>
+              <div className="ngo-icon">
+              <Building2 size={18} />
+              </div>
 
-                    <span className="ngo-name">
-                      {ngo.name}
-                    </span>
+             <span className="ngo-name">
+             {ngo.name}
+             </span>
 
-                  </div>
+             <span
+             className={`ngo-active-badge ${
+              ngoStatus === "completed" ? "completed" : ""
+            }`}
+           style={{ marginLeft: "auto" }}
+          >
+            {ngoStatus === "completed" ? "Completed" : "Active"}
+          </span>
 
-                  <span
-                  className={`ngo-active-badge ${
-                  ngoStatus === "completed" ? "completed" : ""
-                   }`}
-                   >
-                   {ngoStatus === "completed" ? "Completed" : "Active"}
-                   </span>
-
-                </div>
+          </div>
+ 
+        </div>
               ) : (
                 <div className="ngo-empty">
                   This volunteer hasn't been assigned
