@@ -102,6 +102,7 @@ const getVolunteerProgress = async (req, res) => {
         email: volunteer.email,
       },
       ngo: volunteer.ngoId || null,
+       ngoStatus: volunteer.ngoStatus || "active", //hhgjhbjhb
       collegeName: volunteer.collegeId?.name || '',
       weeklyProgress,
       events,
