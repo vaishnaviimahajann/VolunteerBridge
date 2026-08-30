@@ -223,7 +223,7 @@ This project was born from a real problem experienced during an NGO internship �
 
 ## 👩‍💻 Team
 https://github.com/vaishnaviimahajann  
-&&
+
 https://github.com/muazzamshaikh333-md 
 
 ## 📄 License
