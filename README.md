@@ -20,16 +20,22 @@ This platform replaces that scattered workflow with a role-based web application
 
 
 
-<img width="1907" height="1027" alt="Screenshot 2026-08-30 112159" src="https://github.com/user-attachments/assets/1e8162a5-0e39-440d-bf79-6516270e93d2" />
+<img width="1891" height="1020" alt="image" src="https://github.com/user-attachments/assets/7650a648-db58-4aa3-9740-85d91411e551" />
 
 
-<img width="1891" height="1031" alt="image" src="https://github.com/user-attachments/assets/0c64dd54-4606-4918-a1b4-9f54454fe7f7" />
+
+<img width="1896" height="1032" alt="image" src="https://github.com/user-attachments/assets/d5853016-b7c2-47ad-b8bd-a185577905ec" />
+
+
+<img width="1917" height="952" alt="image" src="https://github.com/user-attachments/assets/ea21e61a-5534-4417-966d-dc8db4795812" />
+
 
 
 <img width="1897" height="1040" alt="image" src="https://github.com/user-attachments/assets/754deead-f63f-417c-9198-34f0d796052a" />
 
 
-<img width="1917" height="1030" alt="image" src="https://github.com/user-attachments/assets/37b73ba5-0412-43ec-bbba-1c4768c7aed7" />
+<img width="1917" height="1046" alt="image" src="https://github.com/user-attachments/assets/4b41735d-adff-4d4a-af74-f8d223c787c6" />
+
 
 
 
