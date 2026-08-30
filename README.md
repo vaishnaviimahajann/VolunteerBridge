@@ -8,7 +8,7 @@ A full-stack NGO volunteer management platform that eliminates WhatsApp-based up
 
 ## 🚀 Live Demo
 
-🔗 [Coming soon after deployment]
+🔗 https://volunteerbridge-1.onrender.com
 
 ---
 
