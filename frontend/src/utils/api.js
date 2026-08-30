@@ -1,10 +1,16 @@
 import axios from "axios";
 
-// In production (Render), VITE_API_URL is baked in at build time and
-// points to the deployed backend. Locally, it falls back to localhost
-// so `npm run dev` still works exactly as before.
+// In dev (`npm run dev`), always use the local backend.
+// In a production build, use VITE_API_URL if it was injected at build
+// time — otherwise fall back to the known production backend URL.
+// (Render doesn't reliably pass dashboard Environment Variables as
+// Docker build args, so this fallback keeps things working either way.)
+const baseURL = import.meta.env.DEV
+  ? "http://localhost:5000"
+  : import.meta.env.VITE_API_URL || "https://volunteerbridge.onrender.com";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+  baseURL,
 });
 
 // Attach token from localStorage to every outgoing request
