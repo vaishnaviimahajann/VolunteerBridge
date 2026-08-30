@@ -29,9 +29,10 @@ This platform replaces that scattered workflow with a role-based web application
 
 <img width="1917" height="952" alt="image" src="https://github.com/user-attachments/assets/ea21e61a-5534-4417-966d-dc8db4795812" />
 
-
-
 <img width="1897" height="1040" alt="image" src="https://github.com/user-attachments/assets/754deead-f63f-417c-9198-34f0d796052a" />
+
+
+<img width="1906" height="1042" alt="image" src="https://github.com/user-attachments/assets/d8903c71-4b9b-40d1-a871-122bbabe9750" />
 
 
 <img width="1917" height="1046" alt="image" src="https://github.com/user-attachments/assets/4b41735d-adff-4d4a-af74-f8d223c787c6" />
