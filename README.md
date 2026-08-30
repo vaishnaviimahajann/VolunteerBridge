@@ -99,58 +99,65 @@ This platform replaces that scattered workflow with a role-based web application
 ## 🗂️ Repository Structure
 
 ```
-volunteerbrige/
+VolunteerBridge/
+│
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml              # GitHub Actions CI/CD pipeline
 │
 ├── backend/
 │   ├── config/
-│   │   └── db.js                 # MongoDB connection
-│   ├── models/
-│   │   ├── User.js               # All roles in one schema
-│   │   ├── College.js            # Multi-college support
-│   │   ├── NGO.js                # NGO details
-│   │   ├── Event.js              # Events + attendance
-│   │   ├── WeeklyProgress.js     # Volunteer weekly tasks
-│   │   └── InviteToken.js        # Secure invite tokens
-│   ├── routes/
-│   │   ├── auth.routes.js
-│   │   ├── coordinator.routes.js
-│   │   ├── manager.routes.js
-│   │   └── volunteer.routes.js
+│   │   └── db.js                  # MongoDB connection
 │   ├── controllers/
 │   │   ├── auth.controller.js
 │   │   ├── coordinator.controller.js
 │   │   ├── manager.controller.js
 │   │   └── volunteer.controller.js
 │   ├── middleware/
-│   │   ├── auth.middleware.js    # JWT verification
-│   │   └── role.middleware.js    # RBAC enforcement
+│   │   ├── auth.middleware.js     # JWT verification
+│   │   └── role.middleware.js     # RBAC enforcement
+│   ├── models/
+│   │   ├── User.js                # All roles in one schema
+│   │   ├── College.js             # Multi-college support
+│   │   ├── Ngo.js
+│   │   ├── Event.js               # Events + attendance
+│   │   ├── Weeklyprogress.js      # Volunteer weekly tasks
+│   │   └── InviteToken.js         # Secure invite tokens
+│   ├── routes/
+│   │   ├── auth.routes.js
+│   │   ├── coordinator.routes.js
+│   │   ├── manager.routes.js
+│   │   └── volunteer.routes.js
 │   ├── utils/
-│   │   ├── sendEmail.js          # Nodemailer invite emails
-│   │   └── generateToken.js      # Unique invite token generator
+│   │   ├── Sendemail.js           # Resend API invite emails
+│   │   └── Generatetoken.js       # Unique invite token generator
+│   ├── Dockerfile
+│   ├── .dockerignore
 │   ├── .env
 │   └── server.js
 │
 ├── frontend/
-│   └── src/
-│       ├── pages/
-│       │   ├── LandingPage.jsx
-│       │   ├── LoginPage.jsx
-│       │   ├── RegisterPage.jsx
-│       │   ├── CoordinatorDashboard.jsx
-│       │   ├── ManagerDashboard.jsx
-│       │   └── VolunteerDashboard.jsx
-│       ├── components/
-│       │   ├── Navbar.jsx
-│       │   ├── InviteModal.jsx
-│       │   ├── ManagerCard.jsx
-│       │   ├── VolunteerCard.jsx
-│       │   ├── WeeklyProgressBox.jsx
-│       │   └── EventCard.jsx
-│       ├── context/
-│       │   └── AuthContext.jsx   # Global auth + role state
-│       ├── utils/
-│       │   └── api.js            # Axios setup
-│       └── App.jsx
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── LandingPage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── RegisterPage.jsx
+│   │   │   ├── InviteSignupPage.jsx
+│   │   │   ├── CoordinatorDashboard.jsx
+│   │   │   ├── CoordinatorManagerView.jsx
+│   │   │   ├── CoordinatorVolunteerView.jsx
+│   │   │   ├── ManagerDashboard.jsx
+│   │   │   ├── ManagerVolunteerView.jsx
+│   │   │   └── VolunteerDashboard.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx    # Global auth + role state
+│   │   ├── utils/
+│   │   │   └── api.js             # Axios setup
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   └── .dockerignore
 │
 ├── docker-compose.yml
 └── README.md
@@ -215,7 +222,8 @@ This project was born from a real problem experienced during an NGO internship �
 ---
 
 ## 👩‍💻 Team
-
+https://github.com/muazzamshaikh333-md
+https://github.com/vaishnaviimahajann
 
 ## 📄 License
 
